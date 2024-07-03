@@ -19,6 +19,10 @@ import { UpdateCommandState } from 'src/core/application/CQRS/State/commands/Upd
 import { GetByIdState } from 'src/core/application/CQRS/State/queries/GetByIdState';
 import { GetBySearchState } from 'src/core/application/CQRS/State/queries/GetBySearchState';
 import { KeycloakAdminService } from './core/application/services/keycloak-admin/keycloak-admin.service';
+import { UserService } from './core/application/services/user/user.service';
+import { RoleService } from './core/application/services/role/role.service';
+import { RoleControllerHttp } from './presentation/controllers/RoleControllerHttp';
+import { UserControllerHttp } from './presentation/controllers/UserControllerHttp';
 
 @Module({
   imports: [
@@ -44,7 +48,14 @@ import { KeycloakAdminService } from './core/application/services/keycloak-admin
     GetByIdState,
     GetBySearchState,
     KeycloakAdminService,
+    UserService,
+    RoleService,
   ],
-  controllers: [CityControllerHttp, StateControllerHttp],
+  controllers: [
+    RoleControllerHttp,
+    UserControllerHttp,
+    CityControllerHttp,
+    StateControllerHttp,
+  ],
 })
 export class AppModule {}

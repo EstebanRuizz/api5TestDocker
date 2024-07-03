@@ -1,26 +1,22 @@
 import {
-  Controller,
-  Get,
-  Post,
-  Put,
-  Patch,
-  Delete,
   Body,
+  Controller,
+  Delete,
+  Get,
   Param,
+  Patch,
+  Post,
   Query,
-  Options,
-  Headers,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { State } from 'src/infrastructure/persistence/api5TestDocker/configuration/State';
-import { GetByIdDTO } from 'src/core/application/DTO/queries/GetByIdDTO';
-import { GetAllPaginatedDTO } from 'src/core/application/DTO/queries/GetAllPaginatedDTO';
-import { CreateActionDTOState } from 'src/core/application/DTO/http/State/CreateActionDTOState';
-import { UpdateActionDTOState } from 'src/core/application/DTO/http/State/UpdateActionDTOState';
-import { DeleteActionDTOState } from 'src/core/application/DTO/http/State/DeleteActionDTOState';
-import { ParamIdDtoValidatorCqrsService } from 'param-id-validator';
 import { ApiTags, OmitType } from '@nestjs/swagger';
-import { KeycloakAdminService } from 'src/core/application/services/keycloak-admin/keycloak-admin.service';
+import { ParamIdDtoValidatorCqrsService } from 'param-id-validator';
+import { CreateActionDTOState } from 'src/core/application/DTO/http/State/CreateActionDTOState';
+import { DeleteActionDTOState } from 'src/core/application/DTO/http/State/DeleteActionDTOState';
+import { UpdateActionDTOState } from 'src/core/application/DTO/http/State/UpdateActionDTOState';
+import { GetAllPaginatedDTO } from 'src/core/application/DTO/queries/GetAllPaginatedDTO';
+import { GetByIdDTO } from 'src/core/application/DTO/queries/GetByIdDTO';
+import { State } from 'src/infrastructure/persistence/api5TestDocker/configuration/State';
 
 export class StateControllerHttpOmitId extends OmitType(UpdateActionDTOState, [
   'Id',
@@ -33,7 +29,6 @@ export class StateControllerHttp {
     private readonly queryBus: QueryBus,
     private readonly commandBus: CommandBus,
     private readonly paramIdDtoValidatorCqrs: ParamIdDtoValidatorCqrsService,
-    private readonly keycloakAdminService: KeycloakAdminService,
   ) {}
 
   @Get()
@@ -80,13 +75,5 @@ export class StateControllerHttp {
         id,
       ),
     );
-  }
-
-  @Get('users')
-  public async user(): Promise<object[]> {
-    const users = await this.keycloakAdminService.getUsers();
-    console.log(users);
-
-    return users;
   }
 }
