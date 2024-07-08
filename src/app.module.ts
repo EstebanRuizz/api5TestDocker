@@ -23,6 +23,9 @@ import { UserService } from './core/application/services/user/user.service';
 import { RoleService } from './core/application/services/role/role.service';
 import { RoleControllerHttp } from './presentation/controllers/RoleControllerHttp';
 import { UserControllerHttp } from './presentation/controllers/UserControllerHttp';
+import { RealmControllerHttp } from './presentation/controllers/RealmControllerHttp';
+import { RealmService } from './core/application/services/realm/realm.service';
+import { ClientControllerHttp } from './presentation/controllers/ClientControllerHttp';
 
 @Module({
   imports: [
@@ -50,10 +53,13 @@ import { UserControllerHttp } from './presentation/controllers/UserControllerHtt
     KeycloakAdminService,
     UserService,
     RoleService,
+    RealmService,
   ],
   controllers: [
     RoleControllerHttp,
     UserControllerHttp,
+    RealmControllerHttp,
+    ClientControllerHttp,
     CityControllerHttp,
     StateControllerHttp,
   ],
