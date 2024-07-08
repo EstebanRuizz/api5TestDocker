@@ -1,0 +1,529 @@
+POST http://localhost:3002/rest-api/BackEndAPI
+Accept: */*
+Content-Type: application/json
+Host: 3002
+Content-Length: 4031
+
+{
+  "apiName": "api19",
+  "domainEntities": [
+    {
+      "EntityName": "City",
+      "ClassProperties": [
+        {
+          "propertyName": "Id",
+          "propertyType": "uuid",
+          "isArray": false,
+          "isPrimaryKey": true,
+          "isForeignKey": false,
+          "addIndex": false,
+          "allowNull": false,
+          "fieldValidation": {
+
+          }
+        },
+        {
+          "propertyName": "Name",
+          "propertyType": "string",
+          "isArray": false,
+          "isPrimaryKey": false,
+          "addIndex": true,
+          "isForeignKey": false,
+          "allowNull": false
+        },
+        {
+          "propertyName": "AmountOfPeople",
+          "propertyType": "integer",
+          "isArray": false,
+          "isPrimaryKey": false,
+          "addIndex": true,
+          "isForeignKey": false,
+          "allowNull": false
+        },
+
+        {
+          "propertyName": "StateId",
+          "propertyType": "complex_entity_foreign_key",
+          "refersToEntity": "State",
+          "addIndex": true,
+          "isForeignKey": true,
+          "isArray": false,
+          "isPrimaryKey": false,
+          "allowNull": false
+        }
+      ],
+      "NeedTransactionORM": false,
+      "NeedCustomService": false,
+      "DatabaseModel": {
+        "BelongsTo": [
+          {
+            "belongsTo": "State",
+            "belongsToPropertyName": "State"
+          }
+        ]
+      },
+      "HttpController": {
+        "isAnonymous": false,
+        "throttleLimit": 5,
+        "throttleTtl": 5000,
+        "SkipThrottle": false
+      },
+      "HttpDTO": [
+        {
+          "httpMethod": "POST",
+          "validationsByProperty": [
+            {
+              "propertyName": "Name",
+              "pipeValidations": [
+                "@IsString()",
+                "@IsNotEmpty()",
+                "@MinLength(2)",
+                "@MaxLength(50)"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "EntityName": "State",
+      "ClassProperties": [
+        {
+          "propertyName": "Id",
+          "propertyType": "uuid",
+          "isArray": false,
+          "isPrimaryKey": true,
+          "isForeignKey": false,
+          "addIndex": false,
+          "allowNull": false
+        },
+        {
+          "propertyName": "Name",
+          "propertyType": "string",
+          "isArray": false,
+          "isPrimaryKey": false,
+          "addIndex": true,
+          "isForeignKey": false,
+          "allowNull": false
+        },
+        {
+          "propertyName": "creationYear",
+          "propertyType": "integer",
+          "isArray": false,
+          "isPrimaryKey": false,
+          "addIndex": false,
+          "isForeignKey": false,
+          "allowNull": false
+        },
+        {
+          "propertyName": "isOlderThanOneHundredYears",
+          "propertyType": "boolean",
+          "isArray": false,
+          "isPrimaryKey": false,
+          "addIndex": false,
+          "isForeignKey": false,
+          "allowNull": false
+        }
+      ],
+      "NeedTransactionORM": false,
+      "NeedCustomService": false,
+      "DatabaseModel": {
+        "HasMany": [
+          "City"
+        ]
+      },
+      "HttpController": {
+        "isAnonymous": false,
+        "throttleLimit": 5,
+        "throttleTtl": 5000,
+        "SkipThrottle": false
+      },
+      "HttpDTO": [
+        {
+          "httpMethod": "POST",
+          "validationsByProperty": [
+            {
+              "propertyName": "Name",
+              "pipeValidations": [
+                "@IsString()",
+                "@IsNotEmpty()",
+                "@MinLength(2)",
+                "@MaxLength(50)"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "persistence": {
+    "ormName": "sequelize",
+    "databaseType": "mssql",
+    "databaseName": "database_api_16"
+  },
+  "AIConfig": {},
+  "BIReports": {},
+  "authentication": {},
+  "authorization": {},
+  "generateSDK": {
+    "doc": true,
+    "targetLanguage": [
+      ".NETCore8",
+      "NestJS"
+    ]
+  },
+  "APIDocs": {
+    "UseSwagger": true
+  }
+}
+
+
+####
+
+GET http://localhost:3002/rest-api?apiName=apiTestDocker
+
+
+
+###
+
+POST http://localhost:5420/auth/realms/api20/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=nestjs-app&username=mateo_hernandez&password=Admin.1234
+
+
+
+
+
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+
+################################## OK
+POST http://localhost:8080/realms/master/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password&client_id=admin-cli&username=admin&password=change_me
+
+###
+
+############ CREATE a REALM OK
+
+POST http://localhost:5420/admin/realms
+Authorization: Bearer eyJ
+Content-Type: application/json
+
+{
+  "realm": "your-realm-name",
+  "enabled": true,
+  "displayName": "Your Realm Display Name",
+  "displayNameHtml": "Your Realm Display Name in HTML",
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": false,
+  "smtpServer": {
+    "host": "smtp.example.com",
+    "port": 587,
+    "username": "smtp_username",
+    "password": "smtp_password"
+  },
+  "loginTheme": "keycloak",
+  "defaultRoles": ["user", "admin"],
+  "accessCodeLifespan": 300,
+  "accessTokenLifespan": 1800,
+  "resetPasswordAllowed": true,
+  "verifyEmail": true
+}
+
+############
+
+
+
+
+
+#######
+POST http://localhost:8080/admin/realms/master/clients
+Authorization: Bearer eyJhbGciOi
+Content-Type: application/json
+
+{
+  "clientId": "rest-api-realm",
+  "enabled": true,
+  "directAccessGrantsEnabled": true,
+  "redirectUris": ["http://localhost:8080/app/callback"],
+  "webOrigins": ["http://localhost:8080"],
+  "protocol": "openid-connect",
+  "publicClient": true
+}
+
+#######
+
+
+
+
+
+
+######## CREATE A Role inside a REALM
+
+POST http://localhost:5420/admin/realms/your-realm-name/roles
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+  "name": "your-role-name",
+  "description": "Description of your role"
+}
+
+########
+
+
+########
+
+POST http://localhost:5420/admin/realms/your-realm-name/users
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJqMWR4V25pNlJoR1JyLWJnYXI3Yy1lM2cwbmRMMVdRRzdoTWh6WTBhS0FNIn0.eyJleHAiOjE3MTkzNDk3MDEsImlhdCI6MTcxOTM0OTY0MSwianRpIjoiNGNiZGJmYTAtNjU3NS00MTA0LWI5YTAtZmJiMDQ1Mzc5OTBlIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1NDIwL3JlYWxtcy9tYXN0ZXIiLCJzdWIiOiIzMGJiODI0Zi1jYTE3LTRkMzgtODcyNi04NWViZTU1YjJjOTYiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJhZG1pbi1jbGkiLCJzaWQiOiJjODE5NWVhMC04MDE2LTRmMDgtODBhZS04NDQxMDliM2UyYzYiLCJhY3IiOiIxIiwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhZG1pbiJ9.nw26x0mv5Elz27dP7Xl2AOKnVMN8T0giES73zIumA2HQnne--6Il0V9jLACSxZTHEWBoJJeJ9AbJ9ZGB-6uCpPbP_0uSvWl9TrsaFXs3G8Z-B7A7-0WUk8GyeBRosAg6OdyPkujyAtVNDDe07cR9QBMTMf-KAS2l7qYyH0UI1UKCp8oRNTLg6rskI15bIuhtR6Qb6zmCNwiI4LF0isyykL19YyHpQMo5_PwfVkiFIbrm8ltQ4UR4dJrjVcjgboFXBii0Vo3GrC63GWqnoLzeEGmpOg7T2XrATTBhjUtEpALkkVn1sGhcxAnIiIVcPCrH1yGXdJCxc0Z0xrSB4vzIIA
+Content-Type: application/json
+
+{
+    "username": "mateo",
+    "enabled": true,
+    "credentials": [{
+        "type": "password",
+        "value": "password123",
+        "temporary": false
+    }]
+}
+
+
+
+########
+
+
+########
+
+POST http://localhost:5420/admin/realms/your-realm-name/users
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "username": "lucas",
+    "email": "lucas@example.com", 
+    "enabled": true,
+    "credentials": [{
+        "type": "password",
+        "value": "password123",
+        "temporary": false
+    }],
+      "realmRoles": ["your-role-name"],
+       "attributes": {
+        "attribute_name": "attribute_value" 
+    }
+}
+
+
+########
+
+
+########
+GET http://localhost:5420/admin/realms/api20/clients
+Authorization: Bearer eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJqMWR4V25pNlJoR1JyLWJnYXI3Yy1lM2cwbmRMMVdRRzdoTWh6WTBhS0FNIn0.eyJleHAiOjE3MTkzNjg0NDcsImlhdCI6MTcxOTM2ODM4NywianRpIjoiODkxMzM2MTAtM2QyMC00NDdmLTg4ZWItNWM4M2U0YTUyZDkxIiwiaXNzIjoiaHR0cDovL2xvY2FsaG9zdDo1NDIwL3JlYWxtcy9tYXN0ZXIiLCJzdWIiOiIzMGJiODI0Zi1jYTE3LTRkMzgtODcyNi04NWViZTU1YjJjOTYiLCJ0eXAiOiJCZWFyZXIiLCJhenAiOiJhZG1pbi1jbGkiLCJzaWQiOiI1NzNjNWRiYi0zMTQwLTQ4NWYtOTQ5Yy1mMmUwNDI3MzUzMDciLCJhY3IiOiIxIiwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwiZW1haWxfdmVyaWZpZWQiOmZhbHNlLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJhZG1pbiJ9.kcr5W2tFoUlaYqvvAjdy4rZi6HPoHa-fyTi5qny-WSD7UZBCFv5wjghh7Sbt_ShsYhRiAXr9NFV_DOTre3o-2M6mdWpy01fK5TIA3FRCLRZS344AKEFhwLWXszrBbvoj7-DnBkEYIkrRjzI2_vuTftGh0YR2EvZ4MjvzfWitGY4WdvOy31s2O0VRzLofnP7w8rAi5qS38a4dtk4f85yMvXh3YpYht3VbMiYJcYI8akm4QLfsHJ3JJAU-aPSw_0TRzmKAbOcc_ESO8Q9FOuQH2C0v-v1iUYvPiU7dbwItwXqMIId10cqkriQIfr8icyFZ8GD4L56xdHl7Jk19EriZ6w
+
+########
+
+
+
+
+
+
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+##########################################################
+
+
+
+
+### OK
+POST http://localhost:5420/realms/api20/protocol/openid-connect/token HTTP/1.1
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:5420
+Content-Length: 81
+
+username=mateo_hernandez&password=Admin.1234&grant_type=password&client_id=nestjs-app
+
+
+###
+POST http://localhost:8080/admin/realms/api14/users
+Authorization: Bearer 
+Content-Type: application/json
+
+{
+    "username": "maritza",
+    "enabled": true,
+    "credentials": [{
+        "type": "password",
+        "value": "password123",
+        "temporary": false
+    }]
+}
+
+
+###
+
+POST http://localhost:8080/auth/admin/realms/api14/users
+Content-Type: application/json
+Authorization: Bearer {admin_token}
+
+{
+  "username": "newuser",
+  "email": "newuser@example.com",
+  "enabled": true,
+  "credentials": [
+    {
+      "type": "password",
+      "value": "newuser_password",
+      "temporary": false
+    }
+  ]
+}
+
+
+###
+GET http://localhost:3001/
+###
+GET http://localhost:9090/
+###
+GET http://localhost:5000/base
+###
+GET http://localhost:8080
+###
+GET http://localhost:9200
+###
+
+GET http://localhost:8080/admin/realms
+
+
+###
+
+POST http://localhost:8080/auth/realms/api14/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password
+client_id=admin-cli
+username=admin
+password=admin
+
+
+
+
+
+###
+
+POST http://localhost:8080/realms/ZeussContratos/protocol/openid-connect/token HTTP/1.1
+Accept: */*
+Content-Type: application/x-www-form-urlencoded
+Host: localhost:8080
+Content-Length: 81
+
+username=juan_lopez&password=Admin.123*&grant_type=password&client_id=nestjs-app
+
+
+###
+
+
+
+
+
+
+
+####
+
+POST http://localhost:8080/auth/realms/zeusscontratos/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password
+client_id=06b7cfdb-adcd-4231-a058-8c08489630ae
+username=juan_lopez
+password=Admin.123*
+
+####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###
+
+POST http://localhost:8080/auth/admin/realms/ZeussContratos/users
+Content-Type: application/json
+Authorization: Bearer {admin_token}
+
+{
+  "username": "newuser",
+  "email": "newuser@example.com",
+  "enabled": true,
+  "credentials": [
+    {
+      "type": "password",
+      "value": "newuser_password",
+      "temporary": false
+    }
+  ]
+}
+
+
+###
+
+
+
+
+###
+
+POST http://localhost:8080/auth/realms/Master/protocol/openid-connect/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=password
+client_id=admin-cli
+username=admin
+password=admin
+
+
+
+
+
+###
+
+GET http://localhost:3003/state/a7d016c0-92cb-466c-ac65-2e24ddf0a5fb
+
+###
+GET http://localhost:9200/state/_search?pretty
+###
