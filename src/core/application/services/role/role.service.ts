@@ -8,16 +8,8 @@ export class RoleService extends KeycloakAdminService {
     super();
   }
 
-  public async createRole(role: RoleRepresentation): Promise<{
-    roleName: string;
-  }> {
-    return await super.createRole(role);
-  }
-
   public async get() {
     await super.initAdmin();
     return this._kcAdminClient.roles.find();
   }
-
-
 }
