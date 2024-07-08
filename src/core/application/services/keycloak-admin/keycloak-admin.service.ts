@@ -3,6 +3,7 @@ import PolicyRepresentation from '@keycloak/keycloak-admin-client/lib/defs/polic
 import RoleRepresentation from '@keycloak/keycloak-admin-client/lib/defs/roleRepresentation';
 import UserRepresentation from '@keycloak/keycloak-admin-client/lib/defs/userRepresentation';
 import { Injectable } from '@nestjs/common';
+import { BaseParameterObject } from '@nestjs/swagger/dist/interfaces/open-api-spec.interface';
 
 @Injectable()
 export class KeycloakAdminService {
@@ -43,75 +44,100 @@ export class KeycloakAdminService {
     return newUser;
   }
 
-  protected async createRole(role: RoleRepresentation): Promise<{
-    roleName: string;
-  }> {
+  protected async createRealm(realmName: string) {
     await this.initAdmin();
-    return await this._kcAdminClient.roles.create(role);
+    await this._kcAdminClient.realms.create({
+      realm: realmName,
+      enabled: true,
+    });
   }
 
-  protected async createResource(name: string, uri: string, type: string) {
+  protected async createClient(realmName: string, clientId: string) {
     await this.initAdmin();
-    // Assuming 'realm' is the default realm
-    const resource = await this._kcAdminClient.clients.createPermission(
-      {
-        id: 'realm', // Replace with your client id or realm id
-        type: 'resource',
-      },
-      {
-        name,
-        uri,
-        type,
-      } as PolicyRepresentation,
-    );
-    return resource;
+    await this._kcAdminClient.clients.create({
+      realm: realmName,
+      clientId: clientId,
+      enabled: true,
+      directAccessGrantsEnabled: true,
+      publicClient: true,
+    });
   }
 
-  protected async addPermissionToRole(
-    roleId: string,
-    resourceId: string,
-    scope: string,
+  protected async createResource(
+    realmName: string,
+    clientId: string,
+    resourceName: string,
   ) {
     await this.initAdmin();
-
-    // Retrieve role
-    const role = await this._kcAdminClient.roles.findOneById({ id: roleId });
-    if (!role) {
-      throw new Error(`Role with id ${roleId} not found`);
-    }
-
-    // Retrieve resource
-    const resource = await this._kcAdminClient.clients.findOne({
-      id: resourceId,
+    const clients = await this._kcAdminClient.clients.find({
+      realm: realmName,
+      clientId: clientId,
     });
-    this.validateResource(resource, resourceId);
-
-    // Assign role to resource
-    const policy: PolicyRepresentation = {
-      name: role.name, // Assign role name as permission name
-      type: 'resource',
-      roles: [
-        {
-          id: role.id,
-          required: true, // Optional: depending on your policy setup
-        },
-      ],
-    };
-
-    const createdPolicy = await this._kcAdminClient.clients.createPermission(
-      {
-        id: resource.id, // Replace with your resource id or name
-        type: 'resource',
-      },
-      policy,
-    );
-
-    return createdPolicy;
+    if (clients.length === 0) {
+      throw new Error('Client not found');
+    }
+    const client = clients[0];
+    await this._kcAdminClient.clients[
+      client.id
+    ].authz.resourceServer.resource.create({
+      name: resourceName,
+      uris: [`/${resourceName}/*`],
+    });
   }
 
-  private validateResource(resource, resourceId: string): void {
-    if (!resource) {
-      throw new Error(`Resource with id ${resourceId} not found`);
+  protected async createRole(realmName: string, roleName: string) {
+    await this.initAdmin();
+    await this._kcAdminClient.roles.create({
+      realm: realmName,
+      name: roleName,
+    });
+  }
+
+  protected async createPolicy(
+    realmName: string,
+    clientId: string,
+    policyName: string,
+    roleId: string,
+  ) {
+    await this.initAdmin();
+    const clients = await this._kcAdminClient.clients.find({
+      realm: realmName,
+      clientId: clientId,
+    });
+    if (clients.length === 0) {
+      throw new Error('Client not found');
     }
+    const client = clients[0];
+    await this._kcAdminClient.clients[
+      client.id
+    ].authz.resourceServer.policy.role.create({
+      name: policyName,
+      roles: [{ id: roleId }],
+    });
+  }
+
+  protected async createPermission(
+    realmName: string,
+    clientId: string,
+    permissionName: string,
+    resourceId: string,
+    policyName: string,
+  ) {
+    await this.initAdmin();
+    const clients = await this._kcAdminClient.clients.find({
+      realm: realmName,
+      clientId: clientId,
+    });
+    if (clients.length === 0) {
+      throw new Error('Client not found');
+    }
+    const client = clients[0];
+    await this._kcAdminClient.clients[
+      client.id
+    ].authz.resourceServer.permission.resource.create({
+      name: permissionName,
+      resources: [resourceId],
+      policies: [policyName],
+    });
   }
 }
