@@ -9,15 +9,7 @@ import {
   Query,
 } from '@nestjs/common';
 import { ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
-import {
-  ArrayMaxSize,
-  ArrayMinSize,
-  IsArray,
-  IsNotEmpty,
-  IsString,
-  MaxLength,
-  MinLength,
-} from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 import { KeycloakAdminService } from 'src/core/application/services/keycloak-admin/keycloak-admin.service';
 import { UserService } from 'src/core/application/services/user/user.service';
 import { AssignRoleToUserDTO } from './RoleControllerHttp';

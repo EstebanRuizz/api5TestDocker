@@ -1,19 +1,17 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
-import { ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
-import { IsString, MinLength } from 'class-validator';
+import ResourceRepresentation from '@keycloak/keycloak-admin-client/lib/defs/resourceRepresentation';
+import ScopeRepresentation from '@keycloak/keycloak-admin-client/lib/defs/scopeRepresentation';
+import {
+  Body,
+  Controller,
+  Get,
+  NotFoundException,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { CreateClientDTO } from 'src/core/application/DTO/http/IAM/Client/CreateClientDTO';
+import { CreateResourceDTO } from 'src/core/application/DTO/http/IAM/Client/CreateResourceDTO';
 import { KeycloakAdminService } from 'src/core/application/services/keycloak-admin/keycloak-admin.service';
-
-export class CreateClientDTO {
-  @IsString()
-  @MinLength(1)
-  @ApiProperty()
-  public realmName: string;
-
-  @IsString()
-  @MinLength(1)
-  @ApiProperty()
-  public clientId: string;
-}
 
 @ApiTags('client')
 @Controller('client')
@@ -29,10 +27,6 @@ export class ClientControllerHttp extends KeycloakAdminService {
     @Query('realm') realm: string,
     @Query('clientId') clientId: string,
   ) {
-    // {
-    //   realm: "api5",
-    //   clientId: "clientapi5"
-    //   }
     await this.initAdmin();
     return await this._kcAdminClient.clients.find({
       realm: realm,
@@ -50,5 +44,67 @@ export class ClientControllerHttp extends KeycloakAdminService {
       directAccessGrantsEnabled: true,
       publicClient: true,
     });
+  }
+
+  @Post('resource')
+  public async createResource(@Body() createResourceDTO: CreateResourceDTO) {
+    try {
+      await super.initAdmin();
+      const clients = await this._kcAdminClient.clients.find({
+        realm: createResourceDTO.realmName,
+        clientId: createResourceDTO.clientId,
+      });
+
+      if (clients.length === 0) {
+        throw new NotFoundException('Client not found');
+      }
+
+      const clientId = clients[0].id;
+
+      const resourcePayload: ResourceRepresentation = {
+        name: createResourceDTO.name,
+        uris: createResourceDTO.uris,
+        scopes: createResourceDTO.scopes,
+      };
+      console.log(clientId);
+      console.log(createResourceDTO.realmName);
+
+      // await this._kcAdminClient.clients.listResources
+
+      return await this._kcAdminClient.clients.createResource(
+        { id: clientId, realm: createResourceDTO.realmName },
+        resourcePayload,
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  @Get('resources')
+  @ApiQuery({ name: 'realm', required: true, description: 'Realm name' })
+  @ApiQuery({ name: 'clientId', required: true, description: 'Client ID' })
+  public async getResources(
+    @Query('realm') realm: string,
+    @Query('clientId') clientId: string,
+  ) {
+    try {
+      await super.initAdmin();
+      const clients = await this._kcAdminClient.clients.find({
+        realm: realm,
+        clientId: clientId,
+      });
+
+      if (clients.length === 0) {
+        throw new NotFoundException('Client not found');
+      }
+      const client = clients[0].id;
+
+      return await this._kcAdminClient.clients.listResources({
+        id: client,
+        realm: realm,
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 }

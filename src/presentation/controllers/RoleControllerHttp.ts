@@ -1,3 +1,6 @@
+import RoleRepresentation, {
+  Composites,
+} from '@keycloak/keycloak-admin-client/lib/defs/roleRepresentation';
 import {
   Body,
   Controller,
@@ -19,7 +22,20 @@ import {
 import { KeycloakAdminService } from 'src/core/application/services/keycloak-admin/keycloak-admin.service';
 import { RoleService } from 'src/core/application/services/role/role.service';
 
-export class CreateRoleDTO {
+export class RoleCompositesDTO implements Composites {
+  @ApiProperty()
+  realm?: string[];
+  @ApiProperty()
+  client?: {
+    [index: string]: string[];
+  };
+  @ApiProperty()
+  application?: {
+    [index: string]: string[];
+  };
+}
+
+export class CreateRoleDTO implements RoleRepresentation {
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
@@ -40,6 +56,13 @@ export class CreateRoleDTO {
   @MaxLength(150)
   @ApiProperty()
   public realm: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(3)
+  @MaxLength(150)
+  @ApiProperty()
+  public composites: RoleCompositesDTO;
 }
 
 export class AssignRoleToUserDTO {
@@ -128,10 +151,32 @@ export class RoleControllerHttp extends KeycloakAdminService {
   @Post()
   public async post(@Body() role: CreateRoleDTO) {
     await this.initAdmin();
-    return this._kcAdminClient.roles.create({
-      name: role.name,
-      realm: role.realm,
-    });
+    return this._kcAdminClient.roles.create(role);
+  }
+
+  @Post('client-role')
+  public async createClientRole(@Body() createRoleDTO: CreateRoleDTO) {
+    try {
+      await super.initAdmin();
+
+      const clients = await this._kcAdminClient.clients.find({
+        realm: createRoleDTO.realm,
+        clientId: 'your_client_id',
+      });
+
+      await this._kcAdminClient.clients.createRole({
+        realm: createRoleDTO.realm,
+        id: clients[0].id,
+        name: createRoleDTO.name,
+        description: createRoleDTO.description,
+        composites: createRoleDTO.composites,
+      });
+
+      return { message: 'Role created successfully' };
+    } catch (error) {
+      console.error('Error creating client role:', error);
+      throw new InternalServerErrorException('Failed to create client role');
+    }
   }
 
   @Put()
