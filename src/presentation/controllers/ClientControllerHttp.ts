@@ -1,15 +1,15 @@
 import ResourceRepresentation from '@keycloak/keycloak-admin-client/lib/defs/resourceRepresentation';
-import ScopeRepresentation from '@keycloak/keycloak-admin-client/lib/defs/scopeRepresentation';
 import {
   Body,
   Controller,
   Get,
+  InternalServerErrorException,
   NotFoundException,
   Post,
   Query,
 } from '@nestjs/common';
 import { ApiQuery, ApiTags } from '@nestjs/swagger';
-import { CreateClientDTO } from 'src/core/application/DTO/http/IAM/Client/CreateClientDTO';
+import { CreateClientRoleDTO } from 'src/core/application/DTO/http/IAM/Client/CreateClientRoleDTO';
 import { CreateResourceDTO } from 'src/core/application/DTO/http/IAM/Client/CreateResourceDTO';
 import { KeycloakAdminService } from 'src/core/application/services/keycloak-admin/keycloak-admin.service';
 
@@ -20,30 +20,37 @@ export class ClientControllerHttp extends KeycloakAdminService {
     super();
   }
 
-  @Get()
-  @ApiQuery({ name: 'realm', required: true, description: 'Realm name' })
-  @ApiQuery({ name: 'clientId', required: true, description: 'Client ID' })
-  public async getClients(
-    @Query('realm') realm: string,
-    @Query('clientId') clientId: string,
-  ) {
-    await this.initAdmin();
-    return await this._kcAdminClient.clients.find({
-      realm: realm,
-      clientId: clientId,
-    });
+  @Post('role')
+  public async rolePost(@Body() createClientRoleDTO: CreateClientRoleDTO) {
+    try {
+      await super.initAdmin();
+      return await this._kcAdminClient.clients.createRole({
+        realm: createClientRoleDTO.realmName,
+        name: createClientRoleDTO.roleName,
+        id: createClientRoleDTO.clientId,
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
-  @Post()
-  public async post(@Body() createClientDTO: CreateClientDTO) {
-    await this.initAdmin();
-    return await this._kcAdminClient.clients.create({
-      realm: createClientDTO.realmName,
-      clientId: createClientDTO.clientId,
-      enabled: true,
-      directAccessGrantsEnabled: true,
-      publicClient: true,
-    });
+  @ApiQuery({ name: 'realmName', required: true, description: 'realm Name' })
+  @ApiQuery({ name: 'clientId', required: true, description: 'client Id' })
+  @Get('role')
+  public async roleGet(
+    @Query('realmName') realmName: string,
+    @Query('clientId') clientId: string,
+  ) {
+    try {
+      await super.initAdmin();
+      return await this._kcAdminClient.clients.listRoles({
+        realm: realmName,
+        id: clientId,
+        // id: 'c6e4a1e1-45cc-4599-9e23-1e68bb757f38',
+      });
+    } catch (error) {
+      throw new InternalServerErrorException(error);
+    }
   }
 
   @Post('resource')
@@ -98,6 +105,8 @@ export class ClientControllerHttp extends KeycloakAdminService {
         throw new NotFoundException('Client not found');
       }
       const client = clients[0].id;
+      console.log(client);
+      // this._kcAdminClient.clients.createPolicy()
 
       return await this._kcAdminClient.clients.listResources({
         id: client,

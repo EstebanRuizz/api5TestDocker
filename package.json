@@ -39,6 +39,7 @@
     "dotenv": "^16.4.5",
     "elasticsearch": "^16.7.3",
     "mssql": "^10.0.4",
+    "nest-keycloak-connect": "^1.10.0",
     "param-id-validator": "^1.0.1",
     "reflect-metadata": "^0.1.14",
     "rxjs": "^7.8.1",

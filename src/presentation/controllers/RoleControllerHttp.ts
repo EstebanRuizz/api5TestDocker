@@ -77,6 +77,15 @@ export class AssignRoleToUserDTO {
   @ApiProperty()
   public userId: string;
 
+  // @IsUUID()
+  @IsString()
+  @ApiProperty()
+  public clientId: string;
+
+  @IsUUID()
+  @ApiProperty()
+  public roleId: string;
+
   @IsString()
   @IsNotEmpty()
   @MinLength(3)
@@ -150,7 +159,7 @@ export class RoleControllerHttp extends KeycloakAdminService {
 
   @Post()
   public async post(@Body() role: CreateRoleDTO) {
-    await this.initAdmin();
+    await super.initAdmin();
     return this._kcAdminClient.roles.create(role);
   }
 

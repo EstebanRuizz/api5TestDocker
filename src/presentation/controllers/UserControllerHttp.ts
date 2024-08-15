@@ -4,11 +4,18 @@ import {
   Controller,
   Delete,
   Get,
+  InternalServerErrorException,
+  NotFoundException,
   Post,
   Put,
   Query,
 } from '@nestjs/common';
-import { ApiProperty, ApiQuery, ApiTags } from '@nestjs/swagger';
+import {
+  ApiGatewayTimeoutResponse,
+  ApiProperty,
+  ApiQuery,
+  ApiTags,
+} from '@nestjs/swagger';
 import { IsNotEmpty, IsString, MaxLength, MinLength } from 'class-validator';
 import { KeycloakAdminService } from 'src/core/application/services/keycloak-admin/keycloak-admin.service';
 import { UserService } from 'src/core/application/services/user/user.service';
@@ -40,6 +47,13 @@ export class CreateUserDTO implements UserRepresentation {
   @MaxLength(150)
   @ApiProperty()
   realm: string;
+
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(1)
+  @MaxLength(150)
+  @ApiProperty()
+  serviceAccountClientId: string;
 }
 
 export class RemoveRoleFromUserDTO {
@@ -135,26 +149,64 @@ export class UserControllerHttp extends KeycloakAdminService {
 
   @Post('assignRoleToUser')
   public async assignRoleToUser(@Body() roleToUserDTO: AssignRoleToUserDTO) {
-    await this.initAdmin();
-    const role = await this._kcAdminClient.roles.findOneByName({
-      realm: roleToUserDTO.realmName,
-      name: roleToUserDTO.roleName,
-    });
-    if (!role) {
-      throw new Error('Role not found');
+    try {
+      await super.initAdmin();
+      const role = await this._kcAdminClient.clients.findRole({
+        id: roleToUserDTO.clientId,
+        roleName: roleToUserDTO.roleName,
+        realm: roleToUserDTO.realmName,
+      });
+      console.log(role);
+
+      if (!role) {
+        throw new NotFoundException('Role not found');
+      }
+      // await super.initAdmin();
+      // await this._kcAdminClient.users.addRealmRoleMappings({
+      //   id: roleToUserDTO.userId,
+      //   realm: roleToUserDTO.realmName,
+      //   roles: [{ id: role.id, name: role.name }],
+      // });
+
+      await super.initAdmin();
+      const userId = roleToUserDTO.userId;
+      const realm = roleToUserDTO.realmName;
+
+      const userCurrent = await this._kcAdminClient.users.findOne({
+        id: roleToUserDTO.userId,
+        realm: roleToUserDTO.realmName,
+      });
+      console.log('userCurrent: ', userCurrent);
+
+      const currentRole = await this._kcAdminClient.roles.findOneById({
+        id: roleToUserDTO.roleId,
+        realm: roleToUserDTO.realmName,
+      });
+      // const roles = [{ id: currentRole.id, name: currentRole.name }];
+
+      console.log('currentRole: ', currentRole);
+
+      await this._kcAdminClient.users.addRealmRoleMappings({
+        id: userId,
+        realm: realm,
+        roles: [{ id: currentRole.id, name: currentRole.name }],
+      });
+
+      return {
+        message: 'ok',
+      };
+    } catch (error) {
+      console.log(error);
+
+      throw new InternalServerErrorException(error);
     }
-    await this._kcAdminClient.users.addRealmRoleMappings({
-      id: roleToUserDTO.userId,
-      realm: roleToUserDTO.realmName,
-      roles: [{ id: role.id, name: role.name }],
-    });
   }
 
   @Post('removeRoleFromUser')
   public async removeRoleFromUser(
     @Body() removeRoleFromUserDTO: RemoveRoleFromUserDTO,
   ) {
-    await this.initAdmin();
+    await super.initAdmin();
     const role = await this._kcAdminClient.roles.findOneByName({
       realm: removeRoleFromUserDTO.realmName,
       name: removeRoleFromUserDTO.roleName,

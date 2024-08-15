@@ -26,6 +26,12 @@ import { UserControllerHttp } from './presentation/controllers/UserControllerHtt
 import { RealmControllerHttp } from './presentation/controllers/RealmControllerHttp';
 import { RealmService } from './core/application/services/realm/realm.service';
 import { ClientControllerHttp } from './presentation/controllers/ClientControllerHttp';
+import {
+  KeycloakConnectModule,
+  ResourceGuard,
+  RoleGuard,
+} from 'nest-keycloak-connect';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -35,6 +41,12 @@ import { ClientControllerHttp } from './presentation/controllers/ClientControlle
     ElasticsearchModule.register({
       node: new ConfigService().get<string>('elastic_search_end_point'),
     }),
+    // KeycloakConnectModule.register({
+    //   authServerUrl: 'http://localhost:8080/auth',
+    //   realm: 'api5',
+    //   clientId: 'client-1',
+    //   secret: 'NOaLJRSlNJnZPjLyPQKnTt3K9VfRTYca',
+    // }),
   ],
   providers: [
     ParamIdDtoValidatorCqrsService,
@@ -54,6 +66,14 @@ import { ClientControllerHttp } from './presentation/controllers/ClientControlle
     UserService,
     RoleService,
     RealmService,
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ResourceGuard,
+    // },
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: RoleGuard,
+    // },
   ],
   controllers: [
     RoleControllerHttp,
